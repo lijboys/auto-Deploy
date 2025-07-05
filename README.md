@@ -1,10 +1,5 @@
 # EdgeTunnel 部署工具
                                                    
-<div align="center">
-    <h1>[中文](https://raw.githubusercontent.com/lijboys/auto-Deploy/refs/heads/main/README.md)  English</h1> 
-</div>
-
-
 一键部署 EdgeTunnel 到 Cloudflare Workers 的工具，支持亮色/暗色模式切换，提供友好的用户界面和完整的部署流程。
 
 ## 功能特点
