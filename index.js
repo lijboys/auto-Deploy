@@ -604,4 +604,4 @@ function getIndexHtml() {
       randomUuidBtn.addEventListener('click', generateRandomUuid);
       
       // 高级设置切换
-      advancedToggle.addEventListener('click', toggle
+      advancedToggle.addEventListener
