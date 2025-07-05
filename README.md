@@ -1,8 +1,17 @@
+以下是包含中英文部署教程的完整README文件，支持点击切换语言版本：
+
 # EdgeTunnel 部署工具
-                                                   
+
 一键部署 EdgeTunnel 到 Cloudflare Workers 的工具，支持亮色/暗色模式切换，提供友好的用户界面和完整的部署流程。
 
-## 功能特点
+## 目录
+
+- [中文教程](#中文教程)
+- [English Tutorial](#english-tutorial)
+
+## 中文教程
+
+### 功能特点
 
 - 亮色模式作为默认主题，用户可随时切换到暗色模式
 - 完整的部署表单，包括基础配置和高级设置
@@ -11,20 +20,20 @@
 - 通知系统提供操作反馈
 - 响应式设计，适配不同屏幕尺寸
 
-## 技术栈
+### 技术栈
 
 - HTML/CSS/JavaScript
 - Tailwind CSS v3
 - Font Awesome
 - Cloudflare Workers
 
-## 部署教程
+### 部署教程
 
-### 1. 注册 Cloudflare 账号
+#### 1. 注册 Cloudflare 账号
 
 首先，你需要拥有一个 Cloudflare 账号。如果没有，请访问 [Cloudflare 注册页面](https://dash.cloudflare.com/sign-up) 注册。
 
-### 2. 安装 Wrangler CLI
+#### 2. 安装 Wrangler CLI
 
 Wrangler 是 Cloudflare Workers 的官方命令行工具，用于开发、测试和部署 Workers。使用 npm 全局安装：
 
@@ -38,7 +47,7 @@ npm install -g wrangler
 wrangler --version
 ```
 
-### 3. 登录 Cloudflare
+#### 3. 登录 Cloudflare
 
 使用以下命令登录你的 Cloudflare 账号：
 
@@ -139,25 +148,168 @@ https://edgetunnel-deployer.your-account.workers.dev
 
 如果问题仍然存在，请查看 [Cloudflare Workers 文档](https://developers.cloudflare.com/workers/) 或在社区寻求帮助。
 
-## 使用方法
 
-1. 打开部署工具页面
-2. 输入你的 Cloudflare 账号 ID 和 API Token
-3. （可选）展开高级设置，配置项目名称、UUID 等参数
-4. 点击"开始部署"按钮
-5. 等待部署完成，查看部署结果
-6. 复制生成的 URL 并分享给他人使用
+## English Tutorial
 
-## 贡献
+### Features
 
-如果你想为这个项目做出贡献，请遵循以下步骤：
+- Light mode as default theme, users can switch to dark mode at any time
+- Complete deployment form with basic and advanced settings
+- Randomly generate project name and UUID
+- Deployment process simulation and result display
+- Notification system for operation feedback
+- Responsive design for different screen sizes
 
-1. Fork 这个仓库
-2. 创建你的特性分支 (`git checkout -b feature/your-feature`)
-3. 提交你的更改 (`git commit -m 'Add some feature'`)
-4. 将你的更改推送到分支 (`git push origin feature/your-feature`)
-5. 打开一个 Pull Request
+### Tech Stack
 
-## 许可证
+- HTML/CSS/JavaScript
+- Tailwind CSS v3
+- Font Awesome
+- Cloudflare Workers
 
-本项目采用 MIT 许可证。有关详细信息，请参阅 [LICENSE](LICENSE) 文件。
+### Deployment Tutorial
+
+#### 1. Register a Cloudflare Account
+
+First, you need to have a Cloudflare account. If not, please visit [Cloudflare Sign Up](https://dash.cloudflare.com/sign-up) to register.
+
+#### 2. Install Wrangler CLI
+
+Wrangler is the official command-line tool for Cloudflare Workers, used for developing, testing, and deploying Workers. Install globally using npm:
+
+```bash
+npm install -g wrangler
+```
+
+After installation, verify the installation:
+
+```bash
+wrangler --version
+```
+
+#### 3. Log in to Cloudflare
+
+Log in to your Cloudflare account using:
+
+```bash
+wrangler login
+```
+
+This will open a browser and ask you to authorize Wrangler to access your Cloudflare account.
+
+### 4. Configure the Project
+
+#### 4.1 Clone the Project
+
+If you don't have the project code yet, clone or download the project:
+
+```bash
+git clone https://github.com/your-repo/edgetunnel-deployer.git
+cd edgetunnel-deployer
+```
+
+#### 4.2 Configure wrangler.toml
+
+Open the `wrangler.toml` file in the project root directory and configure your Cloudflare account information:
+
+```toml
+name = "edgetunnel-deployer"
+type = "javascript"
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
+workers_dev = true
+route = ""
+zone_id = ""
+
+[site]
+bucket = "./public"
+entry-point = "workers-site"
+```
+
+You can get your account ID using:
+
+```bash
+wrangler whoami
+```
+
+### 5. Local Development and Testing
+
+#### 5.1 Install Dependencies
+
+```bash
+npm install
+```
+
+#### 5.2 Run Locally
+
+```bash
+wrangler dev
+```
+
+This will start a local development server. Visit `http://localhost:8787` in your browser to view the app.
+
+### 6. Deploy to Cloudflare Workers
+
+#### 6.1 Deployment Command
+
+Deploy the project to Cloudflare Workers using:
+
+```bash
+wrangler publish
+```
+
+#### 6.2 Deployment Successful
+
+After successful deployment, you will see output similar to:
+
+```
+✨  Successfully published your script to
+https://edgetunnel-deployer.your-account.workers.dev
+```
+
+Visit this URL to view your application.
+
+### 7. Custom Domain (Optional)
+
+If you want to use a custom domain instead of the default Workers domain, follow these steps:
+
+1. Add your domain in the Cloudflare dashboard
+2. Configure DNS records
+3. Set up custom routes in `wrangler.toml`
+4. Deploy and verify
+
+### 8. Troubleshooting
+
+If you encounter issues during deployment, refer to these common problems:
+
+1. **Authentication Issues**: Ensure `wrangler login` was executed successfully
+2. **Permission Issues**: Ensure your API Token has sufficient permissions
+3. **Dependency Issues**: Ensure all dependencies are installed correctly
+4. **Code Issues**: Check console error messages
+
+If the issue persists, consult the [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/) or seek help in the community.
+
+
+## Usage
+
+1. Open the deployment tool page
+2. Enter your Cloudflare account ID and API Token
+3. (Optional) Expand advanced settings to configure project name, UUID, etc.
+4. Click the "Start Deployment" button
+5. Wait for deployment to complete and view results
+6. Copy the generated URL and share with others
+
+
+## Contribution
+
+If you want to contribute to this project, please follow these steps:
+
+1. Fork this repository
+2. Create your feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
+
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
