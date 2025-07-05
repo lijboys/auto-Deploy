@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edgetunnel 一键部署工具</title>
+    <title>Edgetunnel Cloudflare 一键部署工具</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -581,7 +581,7 @@
     </style>
 </head>
 <body>
-    <div class="bg-preview" id="bg-preview"></div>
+    <div class="bg-preview" id="bg-preview" style="background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80')"></div>
     
     <div class="container">
         <header>
@@ -607,7 +607,7 @@
                     <label for="account-id"><i class="fas fa-user-circle"></i> Cloudflare 账户 ID</label>
                     <div class="input-container">
                         <i class="fas fa-id-card"></i>
-                        <input type="text" id="account-id" placeholder="输入您的 Cloudflare 账户 ID">
+                        <input type="text" id="account-id" placeholder="输入您的 Cloudflare 账户 ID" value="d7d1a3e9a8c1b2c3d4e5f6a7b8c9d0e1f">
                     </div>
                 </div>
                 
@@ -615,7 +615,7 @@
                     <label for="api-token"><i class="fas fa-key"></i> Cloudflare API Token</label>
                     <div class="input-container">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="api-token" placeholder="输入您的 Cloudflare API Token">
+                        <input type="password" id="api-token" placeholder="输入您的 Cloudflare API Token" value="5bX9sK3jF8pL2qR7tY6wE1zA4cV6xN8">
                     </div>
                 </div>
             </div>
@@ -660,7 +660,7 @@
                             <option value="example.com">example.com</option>
                             <option value="mydomain.net">mydomain.net</option>
                             <option value="cloudproxy.site">cloudproxy.site</option>
-                            <option value="edgetunnel.app">edgetunnel.app</option>
+                            <option value="edgetunnel.app" selected>edgetunnel.app</option>
                             <option value="cfworker.dev">cfworker.dev</option>
                         </select>
                     </div>
@@ -669,7 +669,7 @@
                         <label for="bg-url"><i class="fas fa-image"></i> 背景图片 URL</label>
                         <div class="input-container">
                             <i class="fas fa-link"></i>
-                            <input type="text" id="bg-url" placeholder="输入背景图片 URL（可选）" value="https://picsum.photos/1920/1080?nature">
+                            <input type="text" id="bg-url" placeholder="输入背景图片 URL（可选）" value="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80">
                         </div>
                     </div>
                     
@@ -689,12 +689,12 @@
                     
                     <div class="form-group">
                         <label for="add"><i class="fas fa-plus-circle"></i> ADD</label>
-                        <input type="text" id="add" placeholder="输入 ADD 值（可选）">
+                        <input type="text" id="add" placeholder="输入 ADD 值（可选）" value="add.example.com">
                     </div>
                     
                     <div class="form-group">
                         <label for="addapi"><i class="fas fa-code"></i> ADDAPI</label>
-                        <input type="text" id="addapi" placeholder="输入 ADDAPI 值（可选）">
+                        <input type="text" id="addapi" placeholder="输入 ADDAPI 值（可选）" value="api.add.example.com">
                     </div>
                     
                     <div class="form-group">
