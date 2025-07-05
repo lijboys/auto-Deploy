@@ -1,50 +1,50 @@
-/* public/style.css */
 :root {
-  --primary: #165DFF;
-  --secondary: #0FC6C2;
-  --accent: #722ED1;
-  --dark-primary: #2D5BFF;
-  --dark-background: #121212;
-  --dark-card: #1E1E1E;
-  --dark-text: #E0E0E0;
-}
+      --primary: #165DFF;
+      --secondary: #0FC6C2;
+      --accent: #722ED1;
+      --dark-primary: #2D5BFF;
+      --dark-background: #121212;
+      --dark-card: #1E1E1E;
+      --dark-text: #E0E0E0;
+    }
 
-body.dark {
-  --primary: #2D5BFF;
-  --background: #121212;
-  --card: #1E1E1E;
-  --text: #E0E0E0;
-}
+    body.dark {
+      --primary: #2D5BFF;
+      --background: #121212;
+      --card: #1E1E1E;
+      --text: #E0E0E0;
+    }
 
-.text-shadow {
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+    .text-shadow {
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-.transition-bg {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
+    .transition-bg {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
 
-.glass-effect {
-  backdrop-filter: blur(10px);
-  background-color: rgba(255, 255, 255, 0.7);
-}
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background-color: rgba(255, 255, 255, 0.7);
+    }
 
-.glass-effect-dark {
-  backdrop-filter: blur(10px);
-  background-color: rgba(30, 30, 30, 0.7);
-}
+    .glass-effect-dark {
+      backdrop-filter: blur(10px);
+      background-color: rgba(30, 30, 30, 0.7);
+    }
 
-.animate-bounce {
-  animation: bounce 1s infinite;
-}
+    .animate-bounce {
+      animation: bounce 1s infinite;
+    }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(-25%);
-    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-  }
-  50% {
-    transform: translateY(0);
-    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-  }
-}
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(-25%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+      }
+      50% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+      }
+    }
+  
