@@ -1,11 +1,15 @@
-# wrangler.toml
 name = "edgetunnel-deployer"
 type = "javascript"
-account_id = ""
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"  # 从Cloudflare控制台获取
 workers_dev = true
 route = ""
 zone_id = ""
 
 [site]
-bucket = "./public"
-entry-point = "workers-site"
+bucket = "./public"  # 静态文件目录
+entry-point = "workers-site"  # 使用Workers Sites模式
+
+# 配置环境变量
+[vars]
+ENVIRONMENT = "production"
+    
