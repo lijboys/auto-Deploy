@@ -1,10 +1,7 @@
 # EdgeTunnel 部署工具
                                                    
 <div align="center">
-<h1>Cloud Mail</h1>
-</div>
-<div align="center">
-    <h4>中文 English🎉</h4> 
+    <h1>中文 English🎉</h1> 
 </div>
 
 
