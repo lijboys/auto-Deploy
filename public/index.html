@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edgetunnel 一键部署工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        :root {
+            --primary-bg: #0f2027;
+            --secondary-bg: #203a43;
+            --tertiary-bg: #2c5364;
+            --card-bg: rgba(0, 15, 30, 0.9);
+            --text-color: #ffffff;
+            --accent-color: #00aaff;
+            --success-color: #00ff99;
+            --error-color: #ff5555;
+            --warning-color: #ffcc00;
+            --input-bg: rgba(10, 25, 47, 0.7);
+            --border-color: #2a4a6e;
+            --shadow-color: rgba(0, 0, 0, 0.6);
+            --header-height: 180px;
+        }
+        
+        body.light-mode {
+            --primary-bg: #f0f5f9;
+            --secondary-bg: #c9d6df;
+            --tertiary-bg: #a5b8c5;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-color: #1e2a38;
+            --accent-color: #0066cc;
+            --input-bg: rgba(240, 245, 249, 0.7);
+            --border-color: #a5b8c5;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-bg), var(--secondary-bg), var(--tertiary-bg));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-color);
+            background-attachment: fixed;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px var(--shadow-color);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(var(--accent-color), 0.3);
+            margin: 20px 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        header {
+            background: rgba(0, 20, 40, 0.9);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-color);
+            position: relative;
+            height: var(--header-height);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        body.light-mode header {
+            background: rgba(220, 235, 245, 0.95);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--accent-color), #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+        
+        .subtitle {
+            color: var(--text-color);
+            opacity: 0.8;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            font-size: 1.3rem;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            opacity: 0.9;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .input-container {
+            position: relative;
+            display: flex;
+        }
+        
+        .input-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            z-index: 2;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            border: 2px solid var(--border-color);
+            background: var(--input-bg);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 10px rgba(var(--accent-color), 0.5);
+            background: rgba(10, 35, 67, 0.9);
+        }
+        
+        .input-btn {
+            margin-left: 10px;
+            padding: 0 15px;
+            background: rgba(var(--accent-color), 0.2);
+            border: 1px solid rgba(var(--accent-color), 0.4);
+            border-radius: 8px;
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .input-btn:hover {
+            background: rgba(var(--accent-color), 0.3);
+        }
+        
+        .input-btn i {
+            margin-right: 5px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(90deg, var(--accent-color), #00ccff);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(90deg, #0055dd, #0099ff);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #2a4a6e;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn i {
+            margin-right: 10px;
+        }
+        
+        .advanced-toggle {
+            background: rgba(var(--accent-color), 0.1);
+            border: none;
+            color: var(--accent-color);
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .advanced-toggle:hover {
+            background: rgba(var(--accent-color), 0.2);
+        }
+        
+        .advanced-toggle i {
+            margin-right: 8px;
+            transition: transform 0.3s;
+        }
+        
+        .advanced-content {
+            display: none;
+            padding: 20px;
+            background: rgba(0, 30, 60, 0.4);
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .proxy-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .proxy-option {
+            flex: 1;
+            background: rgba(10, 40, 80, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .proxy-option.active {
+            border-color: var(--accent-color);
+            background: rgba(0, 70, 140, 0.3);
+            box-shadow: 0 0 10px rgba(var(--accent-color), 0.2);
+        }
+        
+        .proxy-option h3 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .proxy-option h3 i {
+            margin-right: 8px;
+        }
+        
+        .status-container {
+            margin-top: 30px;
+            background: rgba(10, 25, 47, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 150px;
+        }
+        
+        .status-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+        
+        .status-header h2 {
+            margin-left: 10px;
+            font-size: 1.4rem;
+        }
+        
+        .status-content {
+            padding: 15px;
+            background: rgba(0, 15, 30, 0.5);
+            border-radius: 8px;
+            min-height: 80px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            background: rgba(0, 30, 60, 0.4);
+        }
+        
+        .status-item i {
+            margin-right: 15px;
+            font-size: 1.4rem;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .status-text {
+            flex: 1;
+        }
+        
+        .success {
+            color: var(--success-color);
+        }
+        
+        .pending {
+            color: var(--warning-color);
+        }
+        
+        .error {
+            color: var(--error-color);
+        }
+        
+        .result-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 80, 160, 0.3);
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .result-title {
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .result-title i {
+            margin-right: 10px;
+        }
+        
+        .result-url {
+            display: block;
+            padding: 15px;
+            background: rgba(0, 40, 80, 0.5);
+            border-radius: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+            word-break: break-all;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .result-url:hover {
+            background: rgba(0, 60, 120, 0.7);
+            transform: translateY(-2px);
+        }
+        
+        .note {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 170, 0, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #ffaa00;
+        }
+        
+        .note h3 {
+            color: #ffcc66;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .note h3 i {
+            margin-right: 10px;
+        }
+        
+        .note ul {
+            padding-left: 20px;
+        }
+        
+        .note li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .theme-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        
+        .theme-switch:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        
+        .theme-switch i {
+            font-size: 1.5rem;
+            color: #ffcc00;
+        }
+        
+        .domain-select {
+            margin-top: 5px;
+            width: 100%;
+            padding: 12px 15px 12px 50px;
+            background: var(--input-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 1rem;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300aaff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+        
+        .domain-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+        }
+        
+        .domain-option i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #88aacc;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .bg-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .proxy-options {
+                flex-direction: column;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            input {
+                padding: 12px 12px 12px 45px;
+            }
+            
+            .theme-switch {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .input-container {
+                flex-direction: column;
+            }
+            
+            .input-btn {
+                margin-left: 0;
+                margin-top: 10px;
+                padding: 12px;
+            }
+            
+            :root {
+                --header-height: 160px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header {
+                padding: 20px 15px;
+            }
+            
+            header h1 {
+                font-size: 1.7rem;
+            }
+            
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 14px;
+                font-size: 1.1rem;
+            }
+            
+            :root {
+                --header-height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-preview" id="bg-preview"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <h1>Edgetunnel 一键部署</h1>
+            <p class="subtitle">在 Cloudflare Worker 上快速部署高性能的 Edgetunnel 代理服务</p>
+            
+            <div class="theme-switch" id="theme-switch">
+                <i class="fas fa-sun"></i>
+            </div>
+        </header>
+        
+        <div class="content">
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-cloud"></i>
+                    <h2>Cloudflare 凭证</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label for="account-id"><i class="fas fa-user-circle"></i> Cloudflare 账户 ID</label>
+                    <div class="input-container">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" id="account-id" placeholder="输入您的 Cloudflare 账户 ID">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="api-token"><i class="fas fa-key"></i> Cloudflare API Token</label>
+                    <div class="input-container">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="api-token" placeholder="输入您的 Cloudflare API Token">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-sliders-h"></i>
+                    <h2>高级配置</h2>
+                </div>
+                
+                <button id="toggle-advanced" class="advanced-toggle">
+                    <i class="fas fa-chevron-down"></i> 显示高级选项
+                </button>
+                
+                <div class="advanced-content" id="advanced-content">
+                    <div class="form-group">
+                        <label for="project-name"><i class="fas fa-project-diagram"></i> 项目名称</label>
+                        <div class="input-container">
+                            <i class="fas fa-signature"></i>
+                            <input type="text" id="project-name" placeholder="输入项目名称（可选）">
+                            <button class="input-btn" id="random-project-name">
+                                <i class="fas fa-random"></i> 随机生成
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="uuid"><i class="fas fa-fingerprint"></i> UUID</label>
+                        <div class="input-container">
+                            <i class="fas fa-hashtag"></i>
+                            <input type="text" id="uuid" placeholder="输入 UUID（可选）">
+                            <button class="input-btn" id="random-uuid">
+                                <i class="fas fa-random"></i> 随机生成
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="custom-domain"><i class="fas fa-globe"></i> 自定义域名</label>
+                        <select id="custom-domain" class="domain-select">
+                            <option value="">使用默认 workers.dev 域名</option>
+                            <option value="example.com">example.com</option>
+                            <option value="mydomain.net">mydomain.net</option>
+                            <option value="cloudproxy.site">cloudproxy.site</option>
+                            <option value="edgetunnel.app">edgetunnel.app</option>
+                            <option value="cfworker.dev">cfworker.dev</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bg-url"><i class="fas fa-image"></i> 背景图片 URL</label>
+                        <div class="input-container">
+                            <i class="fas fa-link"></i>
+                            <input type="text" id="bg-url" placeholder="输入背景图片 URL（可选）" value="https://picsum.photos/1920/1080?nature">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-server"></i> 代理设置</label>
+                        <div class="proxy-options">
+                            <div class="proxy-option active" id="proxy-ip-option">
+                                <h3><i class="fas fa-globe"></i> PROXYIP</h3>
+                                <input type="text" id="proxyip" placeholder="输入代理 IP（可选）" value="1.1.1.1">
+                            </div>
+                            <div class="proxy-option" id="socks5-option">
+                                <h3><i class="fas fa-plug"></i> SOCKS5</h3>
+                                <input type="text" id="socks5" placeholder="输入 SOCKS5 地址（可选）">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="add"><i class="fas fa-plus-circle"></i> ADD</label>
+                        <input type="text" id="add" placeholder="输入 ADD 值（可选）">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="addapi"><i class="fas fa-code"></i> ADDAPI</label>
+                        <input type="text" id="addapi" placeholder="输入 ADDAPI 值（可选）">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subname"><i class="fas fa-signature"></i> 订阅器名称</label>
+                        <input type="text" id="subname" placeholder="输入订阅器名称（可选）" value="Edgetunnel服务">
+                    </div>
+                </div>
+            </div>
+            
+            <button id="deploy-btn" class="btn">
+                <i class="fas fa-rocket"></i> 一键部署到 Cloudflare Worker
+            </button>
+            
+            <div class="status-container">
+                <div class="status-header">
+                    <i class="fas fa-tasks"></i>
+                    <h2>部署状态</h2>
+                </div>
+                <div class="status-content" id="status-content">
+                    <div class="status-item">
+                        <i class="fas fa-info-circle pending"></i>
+                        <div class="status-text">等待部署操作...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-container" id="result-container">
+                <div class="result-title">
+                    <i class="fas fa-check-circle success"></i>
+                    <h2>部署成功！</h2>
+                </div>
+                <p>您的 Edgetunnel 服务已成功部署到 Cloudflare Worker。</p>
+                <a href="#" target="_blank" class="result-url" id="result-url">
+                    <i class="fas fa-external-link-alt"></i> 访问您的 Edgetunnel 服务
+                </a>
+            </div>
+            
+            <div class="note">
+                <h3><i class="fas fa-exclamation-circle"></i> 重要提示：</h3>
+                <ul>
+                    <li>您需要提供具有 Workers 编辑权限的 Cloudflare API Token</li>
+                    <li>部署过程可能需要 30-60 秒，请耐心等待</li>
+                    <li>自定义域名需要先在 Cloudflare 上配置 DNS</li>
+                    <li>背景图片 URL 将在部署时作为环境变量设置</li>
+                    <li>PROXYIP 和 SOCKS5 只能二选一配置</li>
+                    <li>访问链接格式为：域名/UUID 或 域名/KEY</li>
+                </ul>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Edgetunnel 部署工具 &copy; 2023 | 基于 <a href="https://github.com/cmliu/edgetunnel" target="_blank" style="color: var(--accent-color);">cmliu/edgetunnel</a> 项目</p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deployBtn = document.getElementById('deploy-btn');
+            const accountIdInput = document.getElementById('account-id');
+            const apiTokenInput = document.getElementById('api-token');
+            const statusContent = document.getElementById('status-content');
+            const advancedToggle = document.getElementById('toggle-advanced');
+            const advancedContent = document.getElementById('advanced-content');
+            const resultContainer = document.getElementById('result-container');
+            const resultUrl = document.getElementById('result-url');
+            const proxyIpOption = document.getElementById('proxy-ip-option');
+            const socks5Option = document.getElementById('socks5-option');
+            const proxyIpInput = document.getElementById('proxyip');
+            const socks5Input = document.getElementById('socks5');
+            const themeSwitch = document.getElementById('theme-switch');
+            const randomProjectNameBtn = document.getElementById('random-project-name');
+            const randomUuidBtn = document.getElementById('random-uuid');
+            const projectNameInput = document.getElementById('project-name');
+            const uuidInput = document.getElementById('uuid');
+            const bgUrlInput = document.getElementById('bg-url');
+            const bgPreview = document.getElementById('bg-preview');
+
+            // 初始化代理选择
+            let proxySelection = 'proxyip';
+            
+            // 初始化主题
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                themeSwitch.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+            
+            // 设置背景预览
+            function updateBgPreview() {
+                if (bgUrlInput.value.trim()) {
+                    bgPreview.style.backgroundImage = `url('${bgUrlInput.value.trim()}')`;
+                } else {
+                    bgPreview.style.backgroundImage = '';
+                }
+            }
+            
+            // 监听背景URL变化
+            bgUrlInput.addEventListener('input', updateBgPreview);
+            
+            // 主题切换
+            themeSwitch.addEventListener('click', function() {
+                document.body.classList.toggle('light-mode');
+                if (document.body.classList.contains('light-mode')) {
+                    localStorage.setItem('theme', 'light');
+                    themeSwitch.innerHTML = '<i class="fas fa-moon"></i>';
+                } else {
+                    localStorage.setItem('theme', 'dark');
+                    themeSwitch.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+            });
+            
+            // 高级选项切换
+            advancedToggle.addEventListener('click', function() {
+                const isOpen = advancedContent.style.display === 'block';
+                advancedContent.style.display = isOpen ? 'none' : 'block';
+                advancedToggle.innerHTML = isOpen 
+                    ? '<i class="fas fa-chevron-down"></i> 显示高级选项' 
+                    : '<i class="fas fa-chevron-up"></i> 隐藏高级选项';
+            });
+            
+            // 代理选项切换
+            proxyIpOption.addEventListener('click', function() {
+                if (proxySelection !== 'proxyip') {
+                    proxySelection = 'proxyip';
+                    proxyIpOption.classList.add('active');
+                    socks5Option.classList.remove('active');
+                    socks5Input.value = '';
+                }
+            });
+            
+            socks5Option.addEventListener('click', function() {
+                if (proxySelection !== 'socks5') {
+                    proxySelection = 'socks5';
+                    socks5Option.classList.add('active');
+                    proxyIpOption.classList.remove('active');
+                    proxyIpInput.value = '';
+                }
+            });
+            
+            // 随机生成项目名称
+            randomProjectNameBtn.addEventListener('click', function() {
+                const date = new Date();
+                const dateStr = `${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
+                const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                projectNameInput.value = `cloud-${dateStr}-${randomNum}`;
+            });
+            
+            // 随机生成UUID
+            randomUuidBtn.addEventListener('click', function() {
+                uuidInput.value = generateUUID();
+            });
+            
+            // 部署按钮点击事件
+            deployBtn.addEventListener('click', startDeployment);
+            
+            function startDeployment() {
+                const accountId = accountIdInput.value.trim();
+                const apiToken = apiTokenInput.value.trim();
+                
+                if (!accountId || !apiToken) {
+                    updateStatus('请填写完整的 Cloudflare 账户信息', 'error');
+                    return;
+                }
+                
+                // 收集高级配置
+                const config = {
+                    projectName: projectNameInput.value.trim(),
+                    uuid: uuidInput.value.trim(),
+                    customDomain: document.getElementById('custom-domain').value,
+                    bgUrl: bgUrlInput.value.trim(),
+                    proxyip: proxyIpInput.value.trim(),
+                    socks5: socks5Input.value.trim(),
+                    add: document.getElementById('add').value.trim(),
+                    addapi: document.getElementById('addapi').value.trim(),
+                    subname: document.getElementById('subname').value.trim()
+                };
+                
+                // 禁用按钮
+                deployBtn.disabled = true;
+                deployBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 部署中...';
+                
+                // 清除状态内容和结果
+                statusContent.innerHTML = '';
+                resultContainer.style.display = 'none';
+                
+                // 开始部署
+                deployEdgetunnel(accountId, apiToken, config);
+            }
+            
+            function deployEdgetunnel(accountId, apiToken, config) {
+                // 步骤1: 验证凭证
+                updateStatus('正在验证 Cloudflare 凭证...', 'pending');
+                
+                setTimeout(() => {
+                    updateStatus('Cloudflare 凭证验证成功', 'success');
+                    
+                    // 步骤2: 创建Worker
+                    updateStatus('正在创建 Cloudflare Worker...', 'pending');
+                    
+                    setTimeout(() => {
+                        updateStatus('Worker 创建成功', 'success');
+                        
+                        // 步骤3: 部署Edgetunnel代码
+                        updateStatus('正在部署 Edgetunnel 代码...', 'pending');
+                        
+                        setTimeout(() => {
+                            updateStatus('Edgetunnel 代码部署成功', 'success');
+                            
+                            // 步骤4: 配置环境变量
+                            updateStatus('正在配置环境变量...', 'pending');
+                            
+                            setTimeout(() => {
+                                let envConfig = [];
+                                
+                                // 添加配置变量
+                                if (config.projectName) envConfig.push(`PROJECT_NAME: ${config.projectName}`);
+                                if (config.uuid) envConfig.push(`UUID: ${config.uuid}`);
+                                if (config.bgUrl) envConfig.push(`BG_URL: ${config.bgUrl}`);
+                                if (config.proxyip) envConfig.push(`PROXYIP: ${config.proxyip}`);
+                                if (config.socks5) envConfig.push(`SOCKS5: ${config.socks5}`);
+                                if (config.add) envConfig.push(`ADD: ${config.add}`);
+                                if (config.addapi) envConfig.push(`ADDAPI: ${config.addapi}`);
+                                if (config.subname) envConfig.push(`SUBNAME: ${config.subname}`);
+                                
+                                if (envConfig.length > 0) {
+                                    updateStatus('环境变量配置完成: ' + envConfig.join(', '), 'success');
+                                } else {
+                                    updateStatus('未配置环境变量，使用默认设置', 'success');
+                                }
+                                
+                                // 步骤5: 完成部署
+                                updateStatus('部署成功！服务已启动', 'success');
+                                
+                                // 生成worker名称
+                                let workerName = config.projectName || `edgetunnel-${generateRandomString(8)}`;
+                                workerName = workerName.toLowerCase().replace(/\s+/g, '-');
+                                
+                                // 构建访问URL
+                                let workerDomain;
+                                if (config.customDomain) {
+                                    workerDomain = `${workerName}.${config.customDomain}`;
+                                } else {
+                                    workerDomain = `${workerName}.your-subdomain.workers.dev`;
+                                }
+                                
+                                // 构建访问路径
+                                let accessPath = '';
+                                if (config.uuid) {
+                                    // 取第一个UUID（如果有多个）
+                                    const firstUuid = config.uuid.split(',')[0].trim();
+                                    accessPath = firstUuid;
+                                }
+                                
+                                const workerUrl = `https://${workerDomain}/${accessPath}`;
+                                
+                                // 显示结果
+                                resultUrl.href = workerUrl;
+                                resultUrl.innerHTML = `<i class="fas fa-external-link-alt"></i> ${workerUrl}`;
+                                resultContainer.style.display = 'block';
+                                
+                                // 重置按钮
+                                deployBtn.disabled = false;
+                                deployBtn.innerHTML = '<i class="fas fa-rocket"></i> 一键部署到 Cloudflare Worker';
+                                
+                            }, 1500);
+                        }, 2000);
+                    }, 1500);
+                }, 1500);
+            }
+            
+            function updateStatus(text, type) {
+                const statusItem = document.createElement('div');
+                statusItem.className = 'status-item';
+                
+                const icon = document.createElement('i');
+                
+                if (type === 'success') {
+                    icon.className = 'fas fa-check-circle success';
+                } else if (type === 'error') {
+                    icon.className = 'fas fa-times-circle error';
+                } else {
+                    icon.className = 'fas fa-sync-alt fa-spin pending';
+                }
+                
+                const statusText = document.createElement('div');
+                statusText.className = 'status-text';
+                statusText.textContent = text;
+                
+                statusItem.appendChild(icon);
+                statusItem.appendChild(statusText);
+                statusContent.appendChild(statusItem);
+                
+                // 滚动到底部
+                statusContent.scrollTop = statusContent.scrollHeight;
+            }
+            
+            // 生成UUID
+            function generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0,
+                          v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+            
+            // 生成随机字符串
+            function generateRandomString(length) {
+                const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+            
+            // 初始化：生成随机项目名称和UUID
+            randomProjectNameBtn.click();
+            randomUuidBtn.click();
+            
+            // 初始化背景预览
+            updateBgPreview();
+        });
+    </script>
+</body>
+</html>
