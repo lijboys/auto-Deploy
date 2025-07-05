@@ -1,1022 +1,426 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edgetunnel Cloudflare 一键部署工具</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        
-        :root {
-            --primary-bg: #0f2027;
-            --secondary-bg: #203a43;
-            --tertiary-bg: #2c5364;
-            --card-bg: rgba(0, 15, 30, 0.9);
-            --text-color: #ffffff;
-            --accent-color: #00aaff;
-            --success-color: #00ff99;
-            --error-color: #ff5555;
-            --warning-color: #ffcc00;
-            --input-bg: rgba(10, 25, 47, 0.7);
-            --border-color: #2a4a6e;
-            --shadow-color: rgba(0, 0, 0, 0.6);
-            --header-height: 180px;
-        }
-        
-        body.light-mode {
-            --primary-bg: #f0f5f9;
-            --secondary-bg: #c9d6df;
-            --tertiary-bg: #a5b8c5;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --text-color: #1e2a38;
-            --accent-color: #0066cc;
-            --input-bg: rgba(240, 245, 249, 0.7);
-            --border-color: #a5b8c5;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-        }
-        
-        body {
-            background: linear-gradient(135deg, var(--primary-bg), var(--secondary-bg), var(--tertiary-bg));
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: var(--text-color);
-            background-attachment: fixed;
-        }
-        
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 1000px;
-            background: var(--card-bg);
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px var(--shadow-color);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(var(--accent-color), 0.3);
-            margin: 20px 0;
-            position: relative;
-            z-index: 10;
-        }
-        
-        header {
-            background: rgba(0, 20, 40, 0.9);
-            padding: 25px;
-            text-align: center;
-            border-bottom: 2px solid var(--accent-color);
-            position: relative;
-            height: var(--header-height);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        body.light-mode header {
-            background: rgba(220, 235, 245, 0.95);
-        }
-        
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, var(--accent-color), #00ffcc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: inline-block;
-        }
-        
-        .logo {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--accent-color);
-        }
-        
-        .subtitle {
-            color: var(--text-color);
-            opacity: 0.8;
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .form-section {
-            margin-bottom: 30px;
-        }
-        
-        .section-title {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            color: var(--accent-color);
-            font-size: 1.3rem;
-        }
-        
-        .section-title i {
-            margin-right: 10px;
-            font-size: 1.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: var(--text-color);
-            opacity: 0.9;
-            font-weight: 500;
-            font-size: 1.1rem;
-        }
-        
-        .input-container {
-            position: relative;
-            display: flex;
-        }
-        
-        .input-container i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--accent-color);
-            font-size: 1.2rem;
-            z-index: 2;
-        }
-        
-        input {
-            width: 100%;
-            padding: 15px 15px 15px 50px;
-            border: 2px solid var(--border-color);
-            background: var(--input-bg);
-            border-radius: 10px;
-            color: var(--text-color);
-            font-size: 1.1rem;
-            transition: all 0.3s;
-            flex: 1;
-        }
-        
-        input:focus {
-            border-color: var(--accent-color);
-            outline: none;
-            box-shadow: 0 0 10px rgba(var(--accent-color), 0.5);
-            background: rgba(10, 35, 67, 0.9);
-        }
-        
-        .input-btn {
-            margin-left: 10px;
-            padding: 0 15px;
-            background: rgba(var(--accent-color), 0.2);
-            border: 1px solid rgba(var(--accent-color), 0.4);
-            border-radius: 8px;
-            color: var(--accent-color);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            min-width: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .input-btn:hover {
-            background: rgba(var(--accent-color), 0.3);
-        }
-        
-        .input-btn i {
-            margin-right: 5px;
-        }
-        
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(90deg, var(--accent-color), #00ccff);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-            letter-spacing: 1px;
-        }
-        
-        .btn:hover {
-            background: linear-gradient(90deg, #0055dd, #0099ff);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
-        }
-        
-        .btn:disabled {
-            background: #2a4a6e;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .btn i {
-            margin-right: 10px;
-        }
-        
-        .advanced-toggle {
-            background: rgba(var(--accent-color), 0.1);
-            border: none;
-            color: var(--accent-color);
-            padding: 12px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s;
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .advanced-toggle:hover {
-            background: rgba(var(--accent-color), 0.2);
-        }
-        
-        .advanced-toggle i {
-            margin-right: 8px;
-            transition: transform 0.3s;
-        }
-        
-        .advanced-content {
-            display: none;
-            padding: 20px;
-            background: rgba(0, 30, 60, 0.4);
-            border-radius: 10px;
-            margin-top: 15px;
-        }
-        
-        .proxy-options {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .proxy-option {
-            flex: 1;
-            background: rgba(10, 40, 80, 0.5);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .proxy-option.active {
-            border-color: var(--accent-color);
-            background: rgba(0, 70, 140, 0.3);
-            box-shadow: 0 0 10px rgba(var(--accent-color), 0.2);
-        }
-        
-        .proxy-option h3 {
-            color: var(--accent-color);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .proxy-option h3 i {
-            margin-right: 8px;
-        }
-        
-        .status-container {
-            margin-top: 30px;
-            background: rgba(10, 25, 47, 0.7);
-            border-radius: 10px;
-            padding: 20px;
-            min-height: 150px;
-        }
-        
-        .status-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            color: var(--accent-color);
-        }
-        
-        .status-header h2 {
-            margin-left: 10px;
-            font-size: 1.4rem;
-        }
-        
-        .status-content {
-            padding: 15px;
-            background: rgba(0, 15, 30, 0.5);
-            border-radius: 8px;
-            min-height: 80px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .status-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 10px;
-            border-radius: 6px;
-            background: rgba(0, 30, 60, 0.4);
-        }
-        
-        .status-item i {
-            margin-right: 15px;
-            font-size: 1.4rem;
-            width: 30px;
-            text-align: center;
-        }
-        
-        .status-text {
-            flex: 1;
-        }
-        
-        .success {
-            color: var(--success-color);
-        }
-        
-        .pending {
-            color: var(--warning-color);
-        }
-        
-        .error {
-            color: var(--error-color);
-        }
-        
-        .result-container {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(0, 80, 160, 0.3);
-            border-radius: 10px;
-            display: none;
-        }
-        
-        .result-title {
-            color: var(--accent-color);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .result-title i {
-            margin-right: 10px;
-        }
-        
-        .result-url {
-            display: block;
-            padding: 15px;
-            background: rgba(0, 40, 80, 0.5);
-            border-radius: 8px;
-            color: var(--text-color);
-            text-decoration: none;
-            word-break: break-all;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-top: 10px;
-            border: 1px solid var(--border-color);
-        }
-        
-        .result-url:hover {
-            background: rgba(0, 60, 120, 0.7);
-            transform: translateY(-2px);
-        }
-        
-        .note {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255, 170, 0, 0.1);
-            border-radius: 10px;
-            border-left: 4px solid #ffaa00;
-        }
-        
-        .note h3 {
-            color: #ffcc66;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .note h3 i {
-            margin-right: 10px;
-        }
-        
-        .note ul {
-            padding-left: 20px;
-        }
-        
-        .note li {
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-        
-        .theme-switch {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 10;
-            transition: all 0.3s;
-        }
-        
-        .theme-switch:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-        }
-        
-        .theme-switch i {
-            font-size: 1.5rem;
-            color: #ffcc00;
-        }
-        
-        .domain-select {
-            margin-top: 5px;
-            width: 100%;
-            padding: 12px 15px 12px 50px;
-            background: var(--input-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-color);
-            font-size: 1rem;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300aaff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 16px;
-        }
-        
-        .domain-option {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-        }
-        
-        .domain-option i {
-            margin-right: 10px;
-            color: var(--accent-color);
-        }
-        
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #88aacc;
-            font-size: 0.9rem;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .bg-preview {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            background-size: cover;
-            background-position: center;
-            opacity: 0.1;
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .proxy-options {
-                flex-direction: column;
-            }
-            
-            header h1 {
-                font-size: 2rem;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-            
-            input {
-                padding: 12px 12px 12px 45px;
-            }
-            
-            .theme-switch {
-                top: 15px;
-                right: 15px;
-                width: 40px;
-                height: 40px;
-            }
-            
-            .input-container {
-                flex-direction: column;
-            }
-            
-            .input-btn {
-                margin-left: 0;
-                margin-top: 10px;
-                padding: 12px;
-            }
-            
-            :root {
-                --header-height: 160px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            header {
-                padding: 20px 15px;
-            }
-            
-            header h1 {
-                font-size: 1.7rem;
-            }
-            
-            .logo {
-                font-size: 2.5rem;
-            }
-            
-            .subtitle {
-                font-size: 1rem;
-            }
-            
-            .section-title {
-                font-size: 1.2rem;
-            }
-            
-            .btn {
-                padding: 14px;
-                font-size: 1.1rem;
-            }
-            
-            :root {
-                --header-height: 150px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="bg-preview" id="bg-preview" style="background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80')"></div>
-    
-    <div class="container">
-        <header>
-            <div class="logo">
-                <i class="fas fa-cloud-upload-alt"></i>
-            </div>
-            <h1>Edgetunnel 一键部署</h1>
-            <p class="subtitle">在 Cloudflare Worker 上快速部署高性能的 Edgetunnel 代理服务</p>
-            
-            <div class="theme-switch" id="theme-switch">
-                <i class="fas fa-sun"></i>
-            </div>
-        </header>
-        
-        <div class="content">
-            <div class="form-section">
-                <div class="section-title">
-                    <i class="fas fa-cloud"></i>
-                    <h2>Cloudflare 凭证</h2>
-                </div>
-                
-                <div class="form-group">
-                    <label for="account-id"><i class="fas fa-user-circle"></i> Cloudflare 账户 ID</label>
-                    <div class="input-container">
-                        <i class="fas fa-id-card"></i>
-                        <input type="text" id="account-id" placeholder="输入您的 Cloudflare 账户 ID" value="d7d1a3e9a8c1b2c3d4e5f6a7b8c9d0e1f">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="api-token"><i class="fas fa-key"></i> Cloudflare API Token</label>
-                    <div class="input-container">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="api-token" placeholder="输入您的 Cloudflare API Token" value="5bX9sK3jF8pL2qR7tY6wE1zA4cV6xN8">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-section">
-                <div class="section-title">
-                    <i class="fas fa-sliders-h"></i>
-                    <h2>高级配置</h2>
-                </div>
-                
-                <button id="toggle-advanced" class="advanced-toggle">
-                    <i class="fas fa-chevron-down"></i> 显示高级选项
-                </button>
-                
-                <div class="advanced-content" id="advanced-content">
-                    <div class="form-group">
-                        <label for="project-name"><i class="fas fa-project-diagram"></i> 项目名称</label>
-                        <div class="input-container">
-                            <i class="fas fa-signature"></i>
-                            <input type="text" id="project-name" placeholder="输入项目名称（可选）">
-                            <button class="input-btn" id="random-project-name">
-                                <i class="fas fa-random"></i> 随机生成
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="uuid"><i class="fas fa-fingerprint"></i> UUID</label>
-                        <div class="input-container">
-                            <i class="fas fa-hashtag"></i>
-                            <input type="text" id="uuid" placeholder="输入 UUID（可选）">
-                            <button class="input-btn" id="random-uuid">
-                                <i class="fas fa-random"></i> 随机生成
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="custom-domain"><i class="fas fa-globe"></i> 自定义域名</label>
-                        <select id="custom-domain" class="domain-select">
-                            <option value="">使用默认 workers.dev 域名</option>
-                            <option value="example.com">example.com</option>
-                            <option value="mydomain.net">mydomain.net</option>
-                            <option value="cloudproxy.site">cloudproxy.site</option>
-                            <option value="edgetunnel.app" selected>edgetunnel.app</option>
-                            <option value="cfworker.dev">cfworker.dev</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="bg-url"><i class="fas fa-image"></i> 背景图片 URL</label>
-                        <div class="input-container">
-                            <i class="fas fa-link"></i>
-                            <input type="text" id="bg-url" placeholder="输入背景图片 URL（可选）" value="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label><i class="fas fa-server"></i> 代理设置</label>
-                        <div class="proxy-options">
-                            <div class="proxy-option active" id="proxy-ip-option">
-                                <h3><i class="fas fa-globe"></i> PROXYIP</h3>
-                                <input type="text" id="proxyip" placeholder="输入代理 IP（可选）" value="1.1.1.1">
-                            </div>
-                            <div class="proxy-option" id="socks5-option">
-                                <h3><i class="fas fa-plug"></i> SOCKS5</h3>
-                                <input type="text" id="socks5" placeholder="输入 SOCKS5 地址（可选）">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="add"><i class="fas fa-plus-circle"></i> ADD</label>
-                        <input type="text" id="add" placeholder="输入 ADD 值（可选）" value="add.example.com">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="addapi"><i class="fas fa-code"></i> ADDAPI</label>
-                        <input type="text" id="addapi" placeholder="输入 ADDAPI 值（可选）" value="api.add.example.com">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="subname"><i class="fas fa-signature"></i> 订阅器名称</label>
-                        <input type="text" id="subname" placeholder="输入订阅器名称（可选）" value="Edgetunnel服务">
-                    </div>
-                </div>
-            </div>
-            
-            <button id="deploy-btn" class="btn">
-                <i class="fas fa-rocket"></i> 一键部署到 Cloudflare Worker
-            </button>
-            
-            <div class="status-container">
-                <div class="status-header">
-                    <i class="fas fa-tasks"></i>
-                    <h2>部署状态</h2>
-                </div>
-                <div class="status-content" id="status-content">
-                    <div class="status-item">
-                        <i class="fas fa-info-circle pending"></i>
-                        <div class="status-text">等待部署操作...</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="result-container" id="result-container">
-                <div class="result-title">
-                    <i class="fas fa-check-circle success"></i>
-                    <h2>部署成功！</h2>
-                </div>
-                <p>您的 Edgetunnel 服务已成功部署到 Cloudflare Worker。</p>
-                <a href="#" target="_blank" class="result-url" id="result-url">
-                    <i class="fas fa-external-link-alt"></i> 访问您的 Edgetunnel 服务
-                </a>
-            </div>
-            
-            <div class="note">
-                <h3><i class="fas fa-exclamation-circle"></i> 重要提示：</h3>
-                <ul>
-                    <li>您需要提供具有 Workers 编辑权限的 Cloudflare API Token</li>
-                    <li>部署过程可能需要 30-60 秒，请耐心等待</li>
-                    <li>自定义域名需要先在 Cloudflare 上配置 DNS</li>
-                    <li>背景图片 URL 将在部署时作为环境变量设置</li>
-                    <li>PROXYIP 和 SOCKS5 只能二选一配置</li>
-                    <li>访问链接格式为：域名/UUID 或 域名/KEY</li>
-                </ul>
-            </div>
+    <html lang="zh-CN">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>EdgeTunnel部署工具</title>
+      <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="style.css">
+    </head>
+    <body class="font-inter bg-gray-50 text-gray-800 transition-bg min-h-screen">
+      <!-- 导航栏 -->
+      <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <i class="fa fa-cloud text-primary text-2xl"></i>
+            <h1 class="text-xl font-bold">EdgeTunnel部署工具</h1>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+            <i class="fa fa-moon-o text-xl"></i>
+          </button>
         </div>
-        
-        <footer>
-            <p>Edgetunnel 部署工具 &copy; 2023 | 基于 <a href="https://github.com/cmliu/edgetunnel" target="_blank" style="color: var(--accent-color);">cmliu/edgetunnel</a> 项目</p>
-        </footer>
-    </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deployBtn = document.getElementById('deploy-btn');
-            const accountIdInput = document.getElementById('account-id');
-            const apiTokenInput = document.getElementById('api-token');
-            const statusContent = document.getElementById('status-content');
-            const advancedToggle = document.getElementById('toggle-advanced');
-            const advancedContent = document.getElementById('advanced-content');
-            const resultContainer = document.getElementById('result-container');
-            const resultUrl = document.getElementById('result-url');
-            const proxyIpOption = document.getElementById('proxy-ip-option');
-            const socks5Option = document.getElementById('socks5-option');
-            const proxyIpInput = document.getElementById('proxyip');
-            const socks5Input = document.getElementById('socks5');
-            const themeSwitch = document.getElementById('theme-switch');
-            const randomProjectNameBtn = document.getElementById('random-project-name');
-            const randomUuidBtn = document.getElementById('random-uuid');
-            const projectNameInput = document.getElementById('project-name');
-            const uuidInput = document.getElementById('uuid');
-            const bgUrlInput = document.getElementById('bg-url');
-            const bgPreview = document.getElementById('bg-preview');
+      </nav>
 
-            // 初始化代理选择
-            let proxySelection = 'proxyip';
+      <!-- 主内容区 -->
+      <main class="container mx-auto px-4 pt-24 pb-16">
+        <!-- 介绍卡片 -->
+        <section class="mb-8 bg-white rounded-xl shadow-lg p-6 transform hover:scale-[1.01] transition-transform">
+          <h2 class="text-2xl font-bold mb-4 text-primary">一键部署 EdgeTunnel 到 Cloudflare Workers</h2>
+          <p class="text-gray-600 mb-4">
+            这个工具可以帮助你快速在 Cloudflare Workers 上部署 EdgeTunnel 项目。只需提供你的 Cloudflare 账号信息和相关配置，即可一键完成部署。
+          </p>
+          <div class="flex flex-wrap gap-4 mb-4">
+            <div class="flex items-center bg-blue-50 px-3 py-1 rounded-full text-sm">
+              <i class="fa fa-bolt text-blue-500 mr-2"></i>
+              <span>快速部署</span>
+            </div>
+            <div class="flex items-center bg-green-50 px-3 py-1 rounded-full text-sm">
+              <i class="fa fa-shield text-green-500 mr-2"></i>
+              <span>安全可靠</span>
+            </div>
+            <div class="flex items-center bg-purple-50 px-3 py-1 rounded-full text-sm">
+              <i class="fa fa-sliders text-purple-500 mr-2"></i>
+              <span>自定义配置</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 部署表单 -->
+        <section class="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h2 class="text-xl font-bold mb-6 border-b pb-3 border-gray-200">
+            <i class="fa fa-cog text-primary mr-2"></i>
+            Cloudflare 配置
+          </h2>
+          
+          <form id="deploy-form" class="space-y-6">
+            <!-- Cloudflare 认证信息 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="account-id" class="block text-sm font-medium text-gray-700 mb-1">Cloudflare 账号 ID</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                    <i class="fa fa-user-circle-o"></i>
+                  </span>
+                  <input type="text" id="account-id" name="account-id" required
+                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                    placeholder="请输入你的 Cloudflare 账号 ID">
+                </div>
+                <p class="mt-1 text-xs text-gray-500">
+                  可以在 Cloudflare 控制台的账户概览页面找到
+                </p>
+              </div>
+              
+              <div>
+                <label for="api-token" class="block text-sm font-medium text-gray-700 mb-1">Cloudflare API Token</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                    <i class="fa fa-key"></i>
+                  </span>
+                  <input type="password" id="api-token" name="api-token" required
+                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                    placeholder="请输入你的 Cloudflare API Token">
+                </div>
+                <div class="flex items-center mt-1">
+                  <button type="button" id="show-token" class="text-xs text-primary hover:underline">
+                    显示密码
+                  </button>
+                  <p class="ml-auto text-xs text-gray-500">
+                    需要具有 Workers KV 和 Workers Scripts 权限
+                  </p>
+                </div>
+              </div>
+            </div>
             
-            // 初始化主题
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-mode');
-                themeSwitch.innerHTML = '<i class="fas fa-moon"></i>';
-            }
-            
-            // 设置背景预览
-            function updateBgPreview() {
-                if (bgUrlInput.value.trim()) {
-                    bgPreview.style.backgroundImage = `url('${bgUrlInput.value.trim()}')`;
-                } else {
-                    bgPreview.style.backgroundImage = '';
-                }
-            }
-            
-            // 监听背景URL变化
-            bgUrlInput.addEventListener('input', updateBgPreview);
-            
-            // 主题切换
-            themeSwitch.addEventListener('click', function() {
-                document.body.classList.toggle('light-mode');
-                if (document.body.classList.contains('light-mode')) {
-                    localStorage.setItem('theme', 'light');
-                    themeSwitch.innerHTML = '<i class="fas fa-moon"></i>';
-                } else {
-                    localStorage.setItem('theme', 'dark');
-                    themeSwitch.innerHTML = '<i class="fas fa-sun"></i>';
-                }
-            });
-            
-            // 高级选项切换
-            advancedToggle.addEventListener('click', function() {
-                const isOpen = advancedContent.style.display === 'block';
-                advancedContent.style.display = isOpen ? 'none' : 'block';
-                advancedToggle.innerHTML = isOpen 
-                    ? '<i class="fas fa-chevron-down"></i> 显示高级选项' 
-                    : '<i class="fas fa-chevron-up"></i> 隐藏高级选项';
-            });
-            
-            // 代理选项切换
-            proxyIpOption.addEventListener('click', function() {
-                if (proxySelection !== 'proxyip') {
-                    proxySelection = 'proxyip';
-                    proxyIpOption.classList.add('active');
-                    socks5Option.classList.remove('active');
-                    socks5Input.value = '';
-                }
-            });
-            
-            socks5Option.addEventListener('click', function() {
-                if (proxySelection !== 'socks5') {
-                    proxySelection = 'socks5';
-                    socks5Option.classList.add('active');
-                    proxyIpOption.classList.remove('active');
-                    proxyIpInput.value = '';
-                }
-            });
-            
-            // 随机生成项目名称
-            randomProjectNameBtn.addEventListener('click', function() {
-                const date = new Date();
-                const dateStr = `${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
-                const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-                projectNameInput.value = `cloud-${dateStr}-${randomNum}`;
-            });
-            
-            // 随机生成UUID
-            randomUuidBtn.addEventListener('click', function() {
-                uuidInput.value = generateUUID();
-            });
-            
-            // 部署按钮点击事件
-            deployBtn.addEventListener('click', startDeployment);
-            
-            function startDeployment() {
-                const accountId = accountIdInput.value.trim();
-                const apiToken = apiTokenInput.value.trim();
+            <!-- 高级设置 -->
+            <div id="advanced-settings" class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="font-medium text-gray-700">
+                  <i class="fa fa-sliders text-primary mr-2"></i>
+                  高级设置
+                </h3>
+                <button type="button" id="toggle-advanced" class="text-sm text-primary hover:underline">
+                  <i class="fa fa-chevron-down mr-1"></i> 展开
+                </button>
+              </div>
+              
+              <div id="advanced-fields" class="hidden space-y-6">
+                <!-- 项目名称 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="project-name" class="block text-sm font-medium text-gray-700 mb-1">项目名称</label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                        <i class="fa fa-tag"></i>
+                      </span>
+                      <input type="text" id="project-name" name="project-name" value="cloud-"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                        placeholder="项目名称">
+                      <button type="button" id="random-project-name" class="absolute inset-y-0 right-0 flex items-center pr-3 text-primary hover:text-primary/80">
+                        <i class="fa fa-random"></i>
+                      </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                      Cloudflare Workers 的项目名称
+                    </p>
+                  </div>
+                  
+                  <!-- UUID -->
+                  <div>
+                    <label for="uuid" class="block text-sm font-medium text-gray-700 mb-1">UUID</label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                        <i class="fa fa-id-card-o"></i>
+                      </span>
+                      <input type="text" id="uuid" name="uuid"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                        placeholder="UUID (留空则使用默认值)">
+                      <button type="button" id="random-uuid" class="absolute inset-y-0 right-0 flex items-center pr-3 text-primary hover:text-primary/80">
+                        <i class="fa fa-random"></i>
+                      </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                      用于 EdgeTunnel 的 UUID
+                    </p>
+                  </div>
+                </div>
                 
-                if (!accountId || !apiToken) {
-                    updateStatus('请填写完整的 Cloudflare 账户信息', 'error');
-                    return;
-                }
+                <!-- PROXYIP / SOCKS5 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="proxy-ip" class="block text-sm font-medium text-gray-700 mb-1">PROXYIP</label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                        <i class="fa fa-server"></i>
+                      </span>
+                      <input type="text" id="proxy-ip" name="proxy-ip"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                        placeholder="代理服务器 IP (留空则使用默认值)">
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                      代理服务器地址，与 SOCKS5 二选一
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label for="socks5" class="block text-sm font-medium text-gray-700 mb-1">SOCKS5</label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                        <i class="fa fa-socks"></i>
+                      </span>
+                      <input type="text" id="socks5" name="socks5"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                        placeholder="SOCKS5 服务器 (留空则使用默认值)">
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                      SOCKS5 服务器地址，与 PROXYIP 二选一
+                    </p>
+                  </div>
+                </div>
                 
-                // 收集高级配置
-                const config = {
-                    projectName: projectNameInput.value.trim(),
-                    uuid: uuidInput.value.trim(),
-                    customDomain: document.getElementById('custom-domain').value,
-                    bgUrl: bgUrlInput.value.trim(),
-                    proxyip: proxyIpInput.value.trim(),
-                    socks5: socks5Input.value.trim(),
-                    add: document.getElementById('add').value.trim(),
-                    addapi: document.getElementById('addapi').value.trim(),
-                    subname: document.getElementById('subname').value.trim()
-                };
+                <!-- ADD / ADDAPI -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="add" class="block text-sm font-medium text-gray-700 mb-1">ADD</label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                        <i class="fa fa-link"></i>
+                      </span>
+                      <input type="text" id="add" name="add"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                        placeholder="ADD (留空则使用默认值)">
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                      EdgeTunnel 的 ADD 变量
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label for="add-api" class="block text-sm font-medium text-gray-700 mb-1">ADDAPI</label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                        <i class="fa fa-code"></i>
+                      </span>
+                      <input type="text" id="add-api" name="add-api"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                        placeholder="ADDAPI (留空则使用默认值)">
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                      EdgeTunnel 的 ADDAPI 变量
+                    </p>
+                  </div>
+                </div>
                 
-                // 禁用按钮
-                deployBtn.disabled = true;
-                deployBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 部署中...';
+                <!-- 订阅器名称 -->
+                <div>
+                  <label for="sub-name" class="block text-sm font-medium text-gray-700 mb-1">订阅器名称</label>
+                  <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                      <i class="fa fa-bookmark"></i>
+                    </span>
+                    <input type="text" id="sub-name" name="sub-name"
+                      class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                      placeholder="订阅器名称 (留空则使用默认值)">
+                  </div>
+                  <p class="mt-1 text-xs text-gray-500">
+                    EdgeTunnel 的 SUBNAME 变量
+                  </p>
+                </div>
                 
-                // 清除状态内容和结果
-                statusContent.innerHTML = '';
-                resultContainer.style.display = 'none';
-                
-                // 开始部署
-                deployEdgetunnel(accountId, apiToken, config);
-            }
+                <!-- 自定义域名 -->
+                <div>
+                  <label for="custom-domain" class="block text-sm font-medium text-gray-700 mb-1">自定义域名</label>
+                  <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                      <i class="fa fa-globe"></i>
+                    </span>
+                    <input type="text" id="custom-domain" name="custom-domain"
+                      class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                      placeholder="自定义域名前缀 (留空则使用默认域名)">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500" id="domain-suffix">
+                      .workers.dev
+                    </span>
+                  </div>
+                  <p class="mt-1 text-xs text-gray-500">
+                    只需要输入前缀，系统会自动添加 .workers.dev 后缀
+                  </p>
+                </div>
+              </div>
+            </div>
             
-            function deployEdgetunnel(accountId, apiToken, config) {
-                // 步骤1: 验证凭证
-                updateStatus('正在验证 Cloudflare 凭证...', 'pending');
-                
-                setTimeout(() => {
-                    updateStatus('Cloudflare 凭证验证成功', 'success');
-                    
-                    // 步骤2: 创建Worker
-                    updateStatus('正在创建 Cloudflare Worker...', 'pending');
-                    
-                    setTimeout(() => {
-                        updateStatus('Worker 创建成功', 'success');
-                        
-                        // 步骤3: 部署Edgetunnel代码
-                        updateStatus('正在部署 Edgetunnel 代码...', 'pending');
-                        
-                        setTimeout(() => {
-                            updateStatus('Edgetunnel 代码部署成功', 'success');
-                            
-                            // 步骤4: 配置环境变量
-                            updateStatus('正在配置环境变量...', 'pending');
-                            
-                            setTimeout(() => {
-                                let envConfig = [];
-                                
-                                // 添加配置变量
-                                if (config.projectName) envConfig.push(`PROJECT_NAME: ${config.projectName}`);
-                                if (config.uuid) envConfig.push(`UUID: ${config.uuid}`);
-                                if (config.bgUrl) envConfig.push(`BG_URL: ${config.bgUrl}`);
-                                if (config.proxyip) envConfig.push(`PROXYIP: ${config.proxyip}`);
-                                if (config.socks5) envConfig.push(`SOCKS5: ${config.socks5}`);
-                                if (config.add) envConfig.push(`ADD: ${config.add}`);
-                                if (config.addapi) envConfig.push(`ADDAPI: ${config.addapi}`);
-                                if (config.subname) envConfig.push(`SUBNAME: ${config.subname}`);
-                                
-                                if (envConfig.length > 0) {
-                                    updateStatus('环境变量配置完成: ' + envConfig.join(', '), 'success');
-                                } else {
-                                    updateStatus('未配置环境变量，使用默认设置', 'success');
-                                }
-                                
-                                // 步骤5: 完成部署
-                                updateStatus('部署成功！服务已启动', 'success');
-                                
-                                // 生成worker名称
-                                let workerName = config.projectName || `edgetunnel-${generateRandomString(8)}`;
-                                workerName = workerName.toLowerCase().replace(/\s+/g, '-');
-                                
-                                // 构建访问URL
-                                let workerDomain;
-                                if (config.customDomain) {
-                                    workerDomain = `${workerName}.${config.customDomain}`;
-                                } else {
-                                    workerDomain = `${workerName}.your-subdomain.workers.dev`;
-                                }
-                                
-                                // 构建访问路径
-                                let accessPath = '';
-                                if (config.uuid) {
-                                    // 取第一个UUID（如果有多个）
-                                    const firstUuid = config.uuid.split(',')[0].trim();
-                                    accessPath = firstUuid;
-                                }
-                                
-                                const workerUrl = `https://${workerDomain}/${accessPath}`;
-                                
-                                // 显示结果
-                                resultUrl.href = workerUrl;
-                                resultUrl.innerHTML = `<i class="fas fa-external-link-alt"></i> ${workerUrl}`;
-                                resultContainer.style.display = 'block';
-                                
-                                // 重置按钮
-                                deployBtn.disabled = false;
-                                deployBtn.innerHTML = '<i class="fas fa-rocket"></i> 一键部署到 Cloudflare Worker';
-                                
-                            }, 1500);
-                        }, 2000);
-                    }, 1500);
-                }, 1500);
-            }
+            <!-- 部署按钮 -->
+            <div class="flex justify-center">
+              <button type="submit" id="deploy-btn" class="group relative bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-lg transition-all duration-300 flex items-center">
+                <span class="relative z-10 flex items-center">
+                  <i class="fa fa-rocket mr-2 group-hover:animate-bounce"></i>
+                  开始部署
+                </span>
+                <span class="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></span>
+              </button>
+            </div>
+          </form>
+        </section>
+        
+        <!-- 部署结果 -->
+        <section id="result-section" class="hidden bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h2 class="text-xl font-bold mb-6 border-b pb-3 border-gray-200">
+            <i class="fa fa-check-circle text-green-500 mr-2"></i>
+            部署结果
+          </h2>
+          
+          <div id="loading-indicator" class="py-8 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-600">正在部署中，请稍候...</p>
+          </div>
+          
+          <div id="result-success" class="hidden">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <div class="flex items-start">
+                <div class="flex-shrink-0 pt-0.5">
+                  <i class="fa fa-check-circle text-green-500 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-green-800">部署成功</h3>
+                  <div class="mt-2 text-sm text-green-700">
+                    <p>EdgeTunnel 已成功部署到 Cloudflare Workers。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             
-            function updateStatus(text, type) {
-                const statusItem = document.createElement('div');
-                statusItem.className = 'status-item';
-                
-                const icon = document.createElement('i');
-                
-                if (type === 'success') {
-                    icon.className = 'fas fa-check-circle success';
-                } else if (type === 'error') {
-                    icon.className = 'fas fa-times-circle error';
-                } else {
-                    icon.className = 'fas fa-sync-alt fa-spin pending';
-                }
-                
-                const statusText = document.createElement('div');
-                statusText.className = 'status-text';
-                statusText.textContent = text;
-                
-                statusItem.appendChild(icon);
-                statusItem.appendChild(statusText);
-                statusContent.appendChild(statusItem);
-                
-                // 滚动到底部
-                statusContent.scrollTop = statusContent.scrollHeight;
-            }
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-1">项目域名</h3>
+                <div class="relative">
+                  <input type="text" id="project-url" readonly
+                    class="block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="部署后显示项目域名">
+                  <button type="button" id="copy-url" class="absolute inset-y-0 right-0 flex items-center pr-3 text-primary hover:text-primary/80">
+                    <i class="fa fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-1">完整访问链接</h3>
+                <div class="relative">
+                  <input type="text" id="full-url" readonly
+                    class="block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="部署后显示完整链接">
+                  <button type="button" id="copy-full-url" class="absolute inset-y-0 right-0 flex items-center pr-3 text-primary hover:text-primary/80">
+                    <i class="fa fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
             
-            // 生成UUID
-            function generateUUID() {
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    const r = Math.random() * 16 | 0,
-                          v = c === 'x' ? r : (r & 0x3 | 0x8);
-                    return v.toString(16);
-                });
-            }
+            <div class="border-t border-gray-200 pt-6">
+              <h3 class="text-sm font-medium text-gray-700 mb-3">部署信息</h3>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr>
+                      <td class="px-4 py-3 text-sm text-gray-500">项目名称</td>
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900" id="deployed-project-name">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-3 text-sm text-gray-500">UUID</td>
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900" id="deployed-uuid">-</td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-3 text-sm text-gray-500">部署时间</td>
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900" id="deploy-time">-</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div id="result-error" class="hidden">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div class="flex items-start">
+                <div class="flex-shrink-0 pt-0.5">
+                  <i class="fa fa-exclamation-circle text-red-500 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">部署失败</h3>
+                  <div class="mt-2 text-sm text-red-700">
+                    <p>EdgeTunnel 部署到 Cloudflare Workers 失败。</p>
+                    <p id="error-message" class="mt-1 font-medium"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
             
-            // 生成随机字符串
-            function generateRandomString(length) {
-                const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-                let result = '';
-                for (let i = 0; i < length; i++) {
-                    result += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                return result;
-            }
+            <div class="border-t border-gray-200 pt-6">
+              <h3 class="text-sm font-medium text-gray-700 mb-3">错误详情</h3>
+              <pre id="error-details" class="bg-gray-50 p-4 rounded-lg text-sm font-mono text-gray-700 overflow-x-auto"></pre>
+            </div>
+          </div>
+          
+          <div class="mt-8 flex justify-center">
+            <button id="deploy-another" class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+              <i class="fa fa-plus-circle mr-2"></i>
+              部署新项目
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <!-- 页脚 -->
+      <footer class="bg-gray-100 py-6 border-t border-gray-200">
+        <div class="container mx-auto px-4">
+          <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+              <div class="flex items-center">
+                <i class="fa fa-cloud text-primary text-xl mr-2"></i>
+                <span class="text-sm font-medium text-gray-700">EdgeTunnel部署工具</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">
+                快速部署 EdgeTunnel 到 Cloudflare Workers
+              </p>
+            </div>
             
-            // 初始化：生成随机项目名称和UUID
-            randomProjectNameBtn.click();
-            randomUuidBtn.click();
-            
-            // 初始化背景预览
-            updateBgPreview();
-        });
-    </script>
-</body>
-</html>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-github text-xl"></i>
+              </a>
+              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-question-circle text-xl"></i>
+              </a>
+              <a href="#" class="text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-envelope text-xl"></i>
+              </a>
+            </div>
+          </div>
+          
+          <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+            <p class="text-xs text-gray-500">
+              © 2025 EdgeTunnel部署工具 | 由 <a href="#" class="text-primary hover:underline">CloudTools</a> 提供支持
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      <!-- 通知组件 -->
+      <div id="notification" class="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm">
+        <div class="flex items-start">
+          <div class="flex-shrink-0" id="notification-icon-container">
+            <i class="fa fa-check-circle text-green-500 text-xl" id="notification-icon"></i>
+          </div>
+          <div class="ml-3 flex-1">
+            <h3 class="text-sm font-medium text-gray-900" id="notification-title">通知标题</h3>
+            <div class="mt-1 text-sm text-gray-600" id="notification-message">
+              通知内容将显示在这里...
+            </div>
+          </div>
+          <button type="button" id="close-notification" class="ml-4 flex-shrink-0 text-gray-400 hover:text-gray-600">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <script src="script.js"></script>
+    </body>
+    </html>
+  
