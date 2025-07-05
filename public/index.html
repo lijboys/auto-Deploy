@@ -150,4 +150,82 @@
       // 切换部署方式
       workersDeployBtn.addEventListener('click', () => {
         workersDeployBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
-        
+        workersDeployBtn.classList.add('bg-primary', 'text-white');
+        pagesDeployBtn.classList.remove('bg-primary', 'text-white');
+        pagesDeployBtn.classList.add('bg-gray-200', 'dark:bg-gray-700');
+        deploymentType = 'workers';
+      });
+
+      pagesDeployBtn.addEventListener('click', () => {
+        pagesDeployBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+        pagesDeployBtn.classList.add('bg-primary', 'text-white');
+        workersDeployBtn.classList.remove('bg-primary', 'text-white');
+        workersDeployBtn.classList.add('bg-gray-200', 'dark:bg-gray-700');
+        deploymentType = 'pages';
+      });
+
+      // 提交表单
+      deployForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(deployForm);
+        const accountId = formData.get('account-id');
+        const apiToken = formData.get('api-token');
+        const projectName = formData.get('project-name');
+
+        try {
+          // 显示加载状态
+          deployForm.innerHTML = `
+            <div class="text-center py-8">
+              <div class="inline-block w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-2"></div>
+              <p class="text-gray-600 dark:text-gray-400">正在部署到 Cloudflare ${deploymentType === 'workers' ? 'Workers' : 'Pages'}... 请稍候</p>
+            </div>
+          `;
+
+          // 调用对应部署方式的 API
+          let apiPath = deploymentType === 'workers' ? '/api/workers/deploy' : '/api/pages/deploy';
+          const response = await fetch(apiPath, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              accountId, 
+              apiToken, 
+              projectName,
+              // 此处可添加 EdgeTunnel 脚本内容
+              scriptContent: 'addEventListener(\'fetch\', event => {\n  event.respondWith(new Response(\'EdgeTunnel 已部署!\', { status: 200 }));\n});'
+            })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            // 显示成功结果
+            deployResult.innerHTML = `
+              <div><i class="fa fa-project-diagram mr-1"></i> 项目名称: ${data.data.projectName}</div>
+              <div><i class="fa fa-link mr-1"></i> 访问地址: <a href="${data.data.url}" target="_blank" class="text-primary dark:text-blue-400 hover:underline">${data.data.url}</a></div>
+              <div><i class="fa fa-id-card mr-1"></i> 项目 ID: ${data.data.id.slice(0, 8)}...</div>
+              <div><i class="fa fa-calendar mr-1"></i> 部署时间: ${data.data.deployTime}</div>
+              <div class="mt-3">
+                <a href="${data.data.dashboardUrl}" target="_blank" 
+                   class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                  <i class="fa fa-dashboard mr-1"></i> 查看 Cloudflare 控制台
+                </a>
+              </div>
+            `;
+            resultSection.classList.remove('hidden');
+          } else {
+            errorMessage.textContent = data.error || '部署过程中发生错误，请检查参数并重试';
+            errorSection.classList.remove('hidden');
+          }
+
+        } catch (error) {
+          console.error('部署异常', error);
+          errorMessage.textContent = '网络错误或参数无效，请检查：\n1. 账号 ID 和 API Token 是否正确\n2. API Token 权限是否足够';
+          errorSection.classList.remove('hidden');
+        } finally {
+          // 恢复表单
+          deployForm.innerHTML = document.getElementById('deploy-form').outerHTML;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
