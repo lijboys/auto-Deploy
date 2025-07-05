@@ -1,15 +1,11 @@
 name = "edgetunnel-deployer"
 type = "javascript"
-account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"  # 从Cloudflare控制台获取
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
 workers_dev = true
-route = ""
-zone_id = ""
 
 [site]
-bucket = "./public"  # 静态文件目录
-entry-point = "workers-site"  # 使用Workers Sites模式
+bucket = "./public"
+entry-point = "workers-site"
 
-# 配置环境变量
-[vars]
-ENVIRONMENT = "production"
-    
+[route]
+# 自定义路由配置
