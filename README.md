@@ -1,7 +1,7 @@
 # EdgeTunnel 部署工具
                                                    
 <div align="center">
-    <h1>中文  English</h1> 
+    <h1>[中文](https://raw.githubusercontent.com/lijboys/auto-Deploy/refs/heads/main/README.md)  English</h1> 
 </div>
 
 
