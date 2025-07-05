@@ -1,14 +1,12 @@
 {
   "name": "edgetunnel-deployer",
-  "version": "1.0.0",
-  "description": "EdgeTunnel部署工具",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler publish"
+    "dev:workers": "wrangler dev",
+    "deploy:workers": "wrangler publish",
+    "dev:pages": "wrangler pages dev",
+    "deploy:pages": "wrangler pages publish"
   },
   "dependencies": {
     "wrangler": "^3.14.0"
-  },
-  "devDependencies": {}
+  }
 }
-    
